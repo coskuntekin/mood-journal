@@ -27,18 +27,6 @@ const CalendarScreen = () => {
     {month: 'long'},
   );
 
-  // let markedDates: {
-  //   [key: string]: {customStyles: {container: any; text: any}};
-  // } = userMoods.reduce((dates, mood) => {
-  //   dates[mood.date] = {
-  //     customStyles: {
-  //       container: styles.specialDateContainer,
-  //       text: styles.specialDateText,
-  //     },
-  //   };
-  //   return dates;
-  // }, {} as {[key: string]: {customStyles: {container: any; text: any}}});
-
   // Mark the selected day with a custom style
   let markedDates: {
     [key: string]: {customStyles: {container: any; text: any}};
@@ -87,9 +75,9 @@ const CalendarScreen = () => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.pageTimeWrapper}>
-        <Text style={styles.pageHeaderToday}>Today&nbsp;</Text>
+        <Text style={styles.pageHeaderToday}>Today</Text>
         <Text style={styles.pageHeaderDay}>{day}</Text>
-        <Text style={styles.pageHeaderText}>{monthName}</Text>
+        <Text style={styles.pageHeaderMonth}>{monthName}</Text>
       </View>
       <Calendar
         style={styles.calender}
@@ -119,19 +107,21 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     marginBottom: 16,
   },
-  pageHeaderText: {
+  pageHeaderMonth: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#404444',
     lineHeight: 40,
   },
   pageHeaderToday: {
+    width: 60,
     fontSize: 20,
     fontWeight: 'bold',
     color: '#a3accb',
     lineHeight: 40,
   },
   pageHeaderDay: {
+    width: 55,
     fontSize: 40,
     fontWeight: 'bold',
     color: '#404444',

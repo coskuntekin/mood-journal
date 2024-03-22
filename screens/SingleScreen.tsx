@@ -14,7 +14,6 @@ const SingleScreen = () => {
   const route = useRoute();
 
   const mood = (route.params as {mood?: IMood})?.mood as IMood;
-
   const [year, month, day] = mood.date.split('-');
 
   const monthName = new Date(Number(year), Number(month) - 1, 1).toLocaleString(
@@ -27,7 +26,7 @@ const SingleScreen = () => {
       <View style={styles.pageHeader}>
         <View style={styles.pageTimeWrapper}>
           <Text style={styles.pageHeaderDay}>{day}</Text>
-          <Text style={styles.pageHeaderText}>{monthName}</Text>
+          <Text style={styles.pageHeaderMonth}>{monthName}</Text>
         </View>
         <Text style={styles.pageEmoji}>{getEmojiByMood(mood.emoji)}</Text>
       </View>
@@ -44,6 +43,7 @@ const styles = StyleSheet.create({
   pageContainer: {
     padding: 16,
     height: '100%',
+    backgroundColor: '#fff2db',
   },
   pageHeader: {
     flexDirection: 'row',
@@ -51,25 +51,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 14,
     padding: 18,
-    backgroundColor: '#a3accb',
+    backgroundColor: '#ffd575',
+    // backgroundColor: '#a3accb',
     borderRadius: 18,
   },
   pageTimeWrapper: {
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-end',
   },
-  pageHeaderText: {
+  pageHeaderMonth: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#404444',
     lineHeight: 40,
   },
   pageHeaderDay: {
+    minWidth: 55,
     fontSize: 40,
     fontWeight: 'bold',
     color: '#404444',
-    lineHeight: 40,
+    lineHeight: 40.5,
   },
   pageEmoji: {
     fontSize: 30,
