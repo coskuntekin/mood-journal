@@ -3,6 +3,7 @@ import React, {useCallback, useState} from 'react';
 import {ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 import {Button, Portal, RadioButton, Snackbar} from 'react-native-paper';
 import {insertMood} from '../lib/database';
+import moment from 'moment';
 
 const AddScreen = () => {
   const [selectedEmoji, setSelectedEmoji] = useState('');
@@ -15,7 +16,24 @@ const AddScreen = () => {
     useCallback(() => {
       setNote('');
       setSelectedEmoji('');
-      setCurrentDate(new Date().toISOString().split('T')[0]);
+      const options = {
+        year: 'numeric' as const,
+        month: '2-digit' as const,
+        day: '2-digit' as const,
+        hour: 'numeric' as const,
+        minute: 'numeric' as const,
+        second: 'numeric' as const,
+        hour12: false,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      };
+
+      const userCurrentDate = new Date().toLocaleString('en-US', options);
+      const formattedDate = moment(
+        userCurrentDate,
+        'MM/DD/YYYY HH:mm:ss',
+      ).format('YYYY-MM-DD HH:mm:ss');
+
+      setCurrentDate(formattedDate);
     }, []),
   );
 
