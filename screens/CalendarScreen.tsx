@@ -3,7 +3,8 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Calendar} from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {getUserMoodsByDate} from '../lib/database';
+import {getUserMoods, getUserMoodsByDate} from '../lib/database';
+import {Card} from 'react-native-paper';
 
 interface IMood {
   date: string;
@@ -12,13 +13,34 @@ interface IMood {
 }
 
 const CalendarScreen = () => {
-  const [currentDate, setCurrentDate] = useState('');
   const [userMoods, setUserMoods] = useState<IMood[]>([]);
+  const [currentDate, setCurrentDate] = useState<string>('');
+  const [moodsByDate, setMoodsByDate] = useState<IMood[]>([]);
   const titleCurrentDate = new Date().toISOString().split('T')[0];
 
-  useEffect(() => {
-    setCurrentDate(new Date().toISOString().split('T')[0]);
+  const fetchUserMoodsByDate = async (date: string) => {
+    try {
+      const moods: IMood[] = (await getUserMoodsByDate(1, date)) as IMood[];
+      setMoodsByDate(moods);
+    } catch (error) {
+      console.log('Error', 'Failed to fetch user moods');
+    }
+  };
+
+  const fetchUserMoods = useCallback(async () => {
+    try {
+      const moods: IMood[] = (await getUserMoods(1)) as IMood[];
+      setUserMoods(moods);
+    } catch (error) {
+      console.log('Error', 'Failed to fetch user moods');
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserMoods();
+    }, [fetchUserMoods]),
+  );
 
   const [year, month, day] = titleCurrentDate.split('-');
 
@@ -27,9 +49,8 @@ const CalendarScreen = () => {
     {month: 'long'},
   );
 
-  // Mark the selected day with a custom style
   let markedDates: {
-    [key: string]: {customStyles: {container: any; text: any}};
+    [key: string]: {};
   } = {
     [currentDate]: {
       customStyles: {
@@ -38,38 +59,27 @@ const CalendarScreen = () => {
       },
     },
     ...userMoods.reduce((dates, mood) => {
-      dates[mood.date] = {
+      const date = mood.date.split(',')[0];
+      dates[date] = {
         customStyles: {
-          container: styles.specialDateContainer,
-          text: styles.specialDateText,
+          container:
+            date === currentDate
+              ? styles.selectedDayContainer
+              : styles.markedDateContainer,
+          text:
+            date === currentDate
+              ? styles.selectedDayText
+              : styles.markedDateText,
         },
       };
       return dates;
-    }, {} as {[key: string]: {customStyles: {container: any; text: any}}}),
+    }, {} as {[key: string]: {customStyles?: {container: any; text: any}}}),
   };
-
-  const fetchUserMoods = useCallback(async () => {
-    try {
-      const moods: IMood[] = (await getUserMoodsByDate(
-        1,
-        currentDate,
-      )) as IMood[];
-      setUserMoods(moods);
-      console.log('moods', moods);
-    } catch (error) {
-      console.log('Error', 'Failed to fetch user moods');
-    }
-  }, [currentDate]);
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchUserMoods();
-    }, [fetchUserMoods]),
-  );
 
   const handleDayPress = async (selectedDay: {dateString: string}) => {
     console.log(selectedDay);
     setCurrentDate(selectedDay.dateString);
+    await fetchUserMoodsByDate(selectedDay.dateString);
   };
 
   return (
@@ -90,11 +100,36 @@ const CalendarScreen = () => {
         )}
         minDate="2024-01-01"
         firstDay={1}
-        markedDates={markedDates}
         markingType="custom"
+        markedDates={markedDates}
         enableSwipeMonths={false}
         onDayPress={handleDayPress}
       />
+      {moodsByDate.length === 0 ? (
+        <Card style={styles.cardEmpty} mode="contained">
+          <Ionicons
+            style={styles.cardEmptyIcon}
+            name="fish"
+            size={48}
+            color="#a3accb"
+          />
+          <Text style={styles.cardEmptyText}>
+            No moods recorded for the selected date.
+          </Text>
+        </Card>
+      ) : (
+        <View style={styles.viewWrapper}>
+          {moodsByDate.map((mood, index) => (
+            <Card key={index} style={styles.cardWrapper} mode="contained">
+              <Card.Content>
+                <Text>{mood.date}</Text>
+                <Text>{mood.emoji}</Text>
+                <Text>{mood.note}</Text>
+              </Card.Content>
+            </Card>
+          ))}
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -135,12 +170,40 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
     paddingRight: 8,
   },
+  cardEmpty: {
+    width: '100%',
+    paddingBottom: 24,
+    paddingTop: 24,
+    borderRadius: 18,
+    backgroundColor: '#caeef7',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardEmptyIcon: {
+    textAlign: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  cardEmptyText: {
+    fontSize: 16,
+    color: '#404444',
+  },
+  viewWrapper: {
+    marginBottom: 24,
+  },
+  cardWrapper: {
+    marginBottom: 12,
+    backgroundColor: '#fcd9e3',
+  },
   markedDateContainer: {
-    backgroundColor: '#6a67f4',
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: '#6a67f4',
+    // backgroundColor: '#6a67f4',
     borderRadius: 8,
   },
   markedDateText: {
-    color: 'white',
+    color: '#6a67f4',
   },
   selectedDayContainer: {
     backgroundColor: '#6a67f4',
@@ -160,6 +223,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    height: '100%',
     padding: 16,
   },
 });
