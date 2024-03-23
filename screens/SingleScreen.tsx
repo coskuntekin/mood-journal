@@ -14,7 +14,8 @@ const SingleScreen = () => {
   const route = useRoute();
 
   const mood = (route.params as {mood?: IMood})?.mood as IMood;
-  const [year, month, day] = mood.date.split('-');
+  const date = mood.date.split(',')[0];
+  const [year, month, day] = date.split('-');
 
   const monthName = new Date(Number(year), Number(month) - 1, 1).toLocaleString(
     'default',
@@ -52,7 +53,6 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     padding: 18,
     backgroundColor: '#ffd575',
-    // backgroundColor: '#a3accb',
     borderRadius: 18,
   },
   pageTimeWrapper: {
