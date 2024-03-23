@@ -199,7 +199,6 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderWidth: 1,
     borderColor: '#6a67f4',
-    // backgroundColor: '#6a67f4',
     borderRadius: 8,
   },
   markedDateText: {
