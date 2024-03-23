@@ -55,8 +55,8 @@ const TimelineStack = () => {
         options={{
           headerTitleAlign: 'center',
           title: 'Single Day',
-          headerStyle: {backgroundColor: '#6a67f4'},
-          headerTintColor: 'white',
+          headerStyle: {backgroundColor: '#D1D5DB'},
+          headerTintColor: '#717373',
           headerTitleStyle: {fontWeight: 'bold'},
         }}
       />
