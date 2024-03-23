@@ -41,7 +41,6 @@ const TimelineScreen = (): React.JSX.Element => {
   const groupedMoods: {[key: string]: IMood[]} = userMoods.reduce(
     (groups, mood) => {
       const date = mood.date.split(',')[0];
-      console.log('date', date);
 
       const currentDate = moment(date).calendar(null, {
         sameDay: '[Today]',
