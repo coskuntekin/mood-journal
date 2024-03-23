@@ -63,7 +63,7 @@ const TimelineScreen = (): React.JSX.Element => {
   );
 
   return (
-    <StyledScrollView className="mt-4 px-4">
+    <ScrollView style={styles.container}>
       <StyledView className="w-full mb-4">
         <StyledText className="text-2xl text-black font-bold">
           Welcome back 🤙
@@ -72,48 +72,57 @@ const TimelineScreen = (): React.JSX.Element => {
           A great day to be productive
         </StyledText>
       </StyledView>
-      {sortedDates.reverse().map(date => (
-        <View key={date} style={styles.cardGroup}>
-          <Text style={styles.cardTime}>{date}</Text>
-          <View
-            style={
-              date === 'Today'
-                ? styles.cardWrapperToday
-                : styles.cardWrapperOtherDay
-            }>
-            {groupedMoods[date].map((mood, index) => (
-              <Card
-                key={index}
-                style={styles.card}
-                disabled={!mood.note}
-                accessibilityLabel="Mood Card"
-                accessibilityHint="Tap to view more details"
-                elevation={2}
-                onPress={() => navigation.navigate('SingleScreen', {mood})}>
-                <Card.Content style={styles.cardContent}>
-                  {mood.note && (
-                    <Ionicons
-                      name="glasses-outline"
-                      color={'#717373'}
-                      size={24}
-                      style={styles.cardNote}
-                    />
-                  )}
-                  <Text style={styles.cardMoodText}>{mood.emoji}</Text>
-                  <Text style={styles.cardEmoji}>
-                    {getEmojiByMood(mood.emoji)}
-                  </Text>
-                </Card.Content>
-              </Card>
-            ))}
+      <View style={styles.viewWrapper}>
+        {sortedDates.reverse().map(date => (
+          <View key={date} style={styles.cardGroup}>
+            <Text style={styles.cardTime}>{date}</Text>
+            <View
+              style={
+                date === 'Today'
+                  ? styles.cardWrapperToday
+                  : styles.cardWrapperOtherDay
+              }>
+              {groupedMoods[date].map((mood, index) => (
+                <Card
+                  key={index}
+                  style={styles.card}
+                  disabled={!mood.note}
+                  accessibilityLabel="Mood Card"
+                  accessibilityHint="Tap to view more details"
+                  elevation={2}
+                  onPress={() => navigation.navigate('SingleScreen', {mood})}>
+                  <Card.Content style={styles.cardContent}>
+                    {mood.note && (
+                      <Ionicons
+                        name="glasses-outline"
+                        color={'#717373'}
+                        size={24}
+                        style={styles.cardNote}
+                      />
+                    )}
+                    <Text style={styles.cardMoodText}>{mood.emoji}</Text>
+                    <Text style={styles.cardEmoji}>
+                      {getEmojiByMood(mood.emoji)}
+                    </Text>
+                  </Card.Content>
+                </Card>
+              ))}
+            </View>
           </View>
-        </View>
-      ))}
-    </StyledScrollView>
+        ))}
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    height: '100%',
+    padding: 16,
+  },
+  viewWrapper: {
+    marginBottom: 24,
+  },
   cardGroup: {
     marginBottom: 16,
   },
