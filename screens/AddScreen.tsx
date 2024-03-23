@@ -15,7 +15,23 @@ const AddScreen = () => {
     useCallback(() => {
       setNote('');
       setSelectedEmoji('');
-      setCurrentDate(new Date().toISOString().split('T')[0]);
+      const options = {
+        year: 'numeric' as const,
+        month: '2-digit' as const,
+        day: '2-digit' as const,
+        hour: 'numeric' as const,
+        minute: 'numeric' as const,
+        second: 'numeric' as const,
+        hour12: false,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      };
+
+      const userCurrentDate = new Date().toLocaleString('en-US', options);
+      const formattedDate = userCurrentDate.replace(
+        /(\d{2})\/(\d{2})\/(\d{4})/,
+        '$3-$1-$2',
+      );
+      setCurrentDate(formattedDate);
     }, []),
   );
 
