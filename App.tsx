@@ -54,7 +54,7 @@ const TimelineStack = () => {
         component={SingleScreen}
         options={{
           headerTitleAlign: 'center',
-          title: 'Single Day',
+          title: 'Journal Entry',
           headerStyle: {backgroundColor: '#D1D5DB'},
           headerTintColor: '#717373',
           headerTitleStyle: {fontWeight: 'bold'},
