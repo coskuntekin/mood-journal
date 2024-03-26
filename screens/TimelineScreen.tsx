@@ -5,17 +5,16 @@ import React, {useCallback, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Card} from 'react-native-paper';
 import {getUserMoods} from '../lib/database';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import {getEmojiByMood} from '../lib/emoji';
 
-const StyledScrollView = styled(ScrollView);
 const StyledView = styled(View);
 const StyledText = styled(Text);
 
 interface IMood {
+  time: string;
   date: string;
   emoji: string;
-  note: boolean;
+  note: string;
 }
 
 const TimelineScreen = (): React.JSX.Element => {
@@ -62,6 +61,31 @@ const TimelineScreen = (): React.JSX.Element => {
     moment(b, 'MMMM Do').diff(moment(a, 'MMMM Do')),
   );
 
+  const calculateEmojiPercentages = (
+    moods: IMood[],
+  ): {[emoji: string]: number} => {
+    const emojiCounts: {[emoji: string]: number} = {};
+
+    // Count occurrences of each emoji
+    moods.forEach(mood => {
+      if (!emojiCounts[mood.emoji]) {
+        emojiCounts[mood.emoji] = 0;
+      }
+      emojiCounts[mood.emoji]++;
+    });
+
+    // Calculate total count of moods
+    const totalCount = moods.length;
+
+    // Calculate percentage for each emoji
+    const emojiPercentages: {[emoji: string]: number} = {};
+    Object.keys(emojiCounts).forEach(emoji => {
+      emojiPercentages[emoji] = (emojiCounts[emoji] / totalCount) * 100;
+    });
+
+    return emojiPercentages;
+  };
+
   return (
     <ScrollView style={styles.container}>
       <StyledView className="w-full mb-4">
@@ -89,23 +113,25 @@ const TimelineScreen = (): React.JSX.Element => {
                   disabled={!mood.note}
                   accessibilityLabel="Mood Card"
                   accessibilityHint="Tap to view more details"
-                  elevation={2}
+                  mode="contained"
                   onPress={() => navigation.navigate('SingleScreen', {mood})}>
                   <Card.Content style={styles.cardContent}>
-                    {mood.note && (
-                      <Ionicons
-                        name="glasses-outline"
-                        color={'#717373'}
-                        size={24}
-                        style={styles.cardNote}
-                      />
-                    )}
                     <Text style={styles.cardMoodText}>{mood.emoji}</Text>
                     <Text style={styles.cardEmoji}>
                       {getEmojiByMood(mood.emoji)}
                     </Text>
                   </Card.Content>
                 </Card>
+              ))}
+            </View>
+            {/* Display emoji percentages */}
+            <View>
+              {Object.entries(
+                calculateEmojiPercentages(groupedMoods[date]),
+              ).map(([emoji, percentage]) => (
+                <Text key={emoji}>
+                  {emoji}: {percentage.toFixed(2)}%
+                </Text>
               ))}
             </View>
           </View>
@@ -126,11 +152,15 @@ const styles = StyleSheet.create({
   cardGroup: {
     marginBottom: 16,
   },
-  cardNote: {
+  cardNoteIcon: {
     position: 'absolute',
     right: -10,
     top: -10,
     transform: [{rotate: '45deg'}],
+  },
+  cardNote: {
+    color: '#a3accb',
+    fontSize: 14,
   },
   cardWrapperToday: {
     backgroundColor: '#ffe599',
