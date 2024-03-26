@@ -1,15 +1,18 @@
-import {useFocusEffect} from '@react-navigation/native';
-import React, {useCallback, useEffect, useState} from 'react';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import moment from 'moment';
+import React, {useCallback, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Calendar} from 'react-native-calendars';
+import {Card} from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {getUserMoods, getUserMoodsByDate} from '../lib/database';
-import {Card} from 'react-native-paper';
+import {getEmojiByMood} from '../lib/emoji';
 
 interface IMood {
+  time: string;
   date: string;
   emoji: string;
-  note: boolean;
+  note: string;
 }
 
 const CalendarScreen = () => {
@@ -77,10 +80,15 @@ const CalendarScreen = () => {
   };
 
   const handleDayPress = async (selectedDay: {dateString: string}) => {
-    console.log(selectedDay);
     setCurrentDate(selectedDay.dateString);
     await fetchUserMoodsByDate(selectedDay.dateString);
   };
+
+  const formattedTime = (time: string) => {
+    return moment(time, 'HH:mm').format('HH:mm');
+  };
+
+  const navigation = useNavigation();
 
   return (
     <ScrollView style={styles.container}>
@@ -120,11 +128,31 @@ const CalendarScreen = () => {
       ) : (
         <View style={styles.viewWrapper}>
           {moodsByDate.map((mood, index) => (
-            <Card key={index} style={styles.cardWrapper} mode="contained">
+            <Card
+              key={index}
+              style={styles.card}
+              mode="contained"
+              disabled={!mood.note}
+              accessibilityLabel="Mood Card"
+              accessibilityHint="Tap to view more details"
+              onPress={() => navigation.navigate('SingleScreen', {mood})}>
               <Card.Content>
-                <Text>{mood.date}</Text>
-                <Text>{mood.emoji}</Text>
-                <Text>{mood.note}</Text>
+                <View style={styles.cardDateView}>
+                  <Ionicons name="time-outline" size={16} color="#a3accb" />
+                  <Text style={styles.cardDate}>
+                    {formattedTime(mood.time)}
+                  </Text>
+                </View>
+                <View style={styles.cardContent}>
+                  <Text style={styles.cardNote}>
+                    {mood.note.length > 20
+                      ? `${mood.note.slice(0, 20)}...`
+                      : mood.note}
+                  </Text>
+                  <Text style={styles.cardEmoji}>
+                    {getEmojiByMood(mood.emoji)}
+                  </Text>
+                </View>
               </Card.Content>
             </Card>
           ))}
@@ -185,15 +213,46 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   cardEmptyText: {
+    color: '#717373',
     fontSize: 16,
-    color: '#404444',
   },
   viewWrapper: {
     marginBottom: 24,
   },
-  cardWrapper: {
+  card: {
+    width: '100%',
     marginBottom: 12,
-    backgroundColor: '#fcd9e3',
+    backgroundColor: '#caeef7',
+    borderRadius: 18,
+  },
+  cardDateView: {
+    display: 'flex',
+    flexDirection: 'row',
+    columnGap: 4,
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  cardDate: {
+    fontSize: 14,
+    color: '#a3accb',
+  },
+  cardContent: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  cardNote: {
+    width: '80%',
+    color: '#717373',
+    fontSize: 20,
+  },
+  cardEmoji: {
+    backgroundColor: 'white',
+    padding: 8,
+    fontSize: 28,
+    borderRadius: 50,
+    textAlign: 'right',
   },
   markedDateContainer: {
     borderStyle: 'dashed',
