@@ -19,6 +19,7 @@ db.transaction((tx: SQLite.Transaction) => {
       userId INTEGER NOT NULL,
       emoji TEXT NOT NULL,
       date TEXT NOT NULL,
+      time TEXT NOT NULL,
       note TEXT,
       FOREIGN KEY (userId) REFERENCES users (id)
     );`,
@@ -39,12 +40,13 @@ const insertMood = async (
   userId: number,
   emoji: string,
   date: string,
+  time: string,
   note: string,
 ) => {
   (await db).transaction((tx: SQLite.Transaction) => {
     tx.executeSql(
-      'INSERT INTO moods (userId, emoji, date, note) VALUES (?, ?, ?, ?)',
-      [userId, emoji, date, note],
+      'INSERT INTO moods (userId, emoji, date, time, note) VALUES (?, ?, ?, ?, ?)',
+      [userId, emoji, date, time, note],
     );
   });
 };
@@ -81,13 +83,13 @@ const getUserMoods = async (userId: number) => {
   return new Promise(async (resolve, _) => {
     (await db).transaction((transaction: SQLite.Transaction) => {
       transaction.executeSql(
-        'SELECT emoji, date, note FROM moods WHERE userId = ?',
+        'SELECT emoji, date, time, note FROM moods WHERE userId = ?',
         [userId],
         (tx, results) => {
           const moods = [];
           for (let i = 0; i < results.rows.length; i++) {
-            const {emoji, date, note} = results.rows.item(i);
-            moods.push({emoji, date, note});
+            const {emoji, date, time, note} = results.rows.item(i);
+            moods.push({emoji, date, time, note});
           }
           resolve(moods);
         },
@@ -100,13 +102,13 @@ const getUserMoodsByDate = async (userId: number, date: string) => {
   return new Promise(async (resolve, _) => {
     (await db).transaction((transaction: SQLite.Transaction) => {
       transaction.executeSql(
-        'SELECT emoji, date, note FROM moods WHERE userId = ? AND date = ?',
+        'SELECT emoji, date, time, note FROM moods WHERE userId = ? AND date = ?',
         [userId, date],
         (tx, results) => {
           const moods = [];
           for (let i = 0; i < results.rows.length; i++) {
-            const {emoji, date: moodDate, note} = results.rows.item(i);
-            moods.push({emoji, date: moodDate, note});
+            const {emoji, date: moodDate, time, note} = results.rows.item(i);
+            moods.push({emoji, date: moodDate, time, note});
           }
           resolve(moods);
         },
