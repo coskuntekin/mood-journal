@@ -157,7 +157,7 @@ const CalendarScreen = () => {
       <View style={styles.selectedMoodsHead}>
         <Text style={styles.selectedMoodDay}>
           <Ionicons name="calendar-number-outline" size={16} color="#a3accb" />{' '}
-          {moment(currentDate).format('DD/MM/YYYY')}{' '}
+          {moment(currentDate || titleCurrentDate).format('DD/MM/YYYY')}{' '}
         </Text>
         <Text style={styles.selectedMoodDay}>
           <Ionicons name="balloon-outline" size={16} color="#a3accb" />{' '}
