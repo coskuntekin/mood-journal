@@ -8,6 +8,7 @@ import moment from 'moment';
 const AddScreen = () => {
   const [selectedEmoji, setSelectedEmoji] = useState('');
   const [currentDate, setCurrentDate] = useState('');
+  const [currentTime, setCurrentTime] = useState('');
   const [note, setNote] = useState('');
   const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
@@ -28,12 +29,18 @@ const AddScreen = () => {
       };
 
       const userCurrentDate = new Date().toLocaleString('en-US', options);
+
       const formattedDate = moment(
         userCurrentDate,
         'MM/DD/YYYY HH:mm:ss',
-      ).format('YYYY-MM-DD HH:mm:ss');
-
+      ).format('YYYY-MM-DD');
       setCurrentDate(formattedDate);
+
+      const formattedTime = moment(
+        userCurrentDate,
+        'MM/DD/YYYY HH:mm:ss',
+      ).format('HH:mm:ss');
+      setCurrentTime(formattedTime);
     }, []),
   );
 
@@ -44,8 +51,8 @@ const AddScreen = () => {
       setVisible(true);
       return;
     }
-
-    await insertMood(1, selectedEmoji, currentDate, note);
+    const trimmedNote = note.trim();
+    await insertMood(1, selectedEmoji, currentDate, currentTime, trimmedNote);
     navigation.navigate('TimelineScreen');
   };
 

@@ -1,27 +1,32 @@
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import moment from 'moment';
 import React, {useCallback, useEffect, useState} from 'react';
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Calendar} from 'react-native-calendars';
+import {Card} from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {getUserMoods, getUserMoodsByDate} from '../lib/database';
-import {Card} from 'react-native-paper';
+import {getEmojiByMood} from '../lib/emoji';
 
 interface IMood {
+  time: string;
   date: string;
   emoji: string;
-  note: boolean;
+  note: string;
 }
 
 const CalendarScreen = () => {
   const [userMoods, setUserMoods] = useState<IMood[]>([]);
   const [currentDate, setCurrentDate] = useState<string>('');
   const [moodsByDate, setMoodsByDate] = useState<IMood[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   const titleCurrentDate = new Date().toISOString().split('T')[0];
 
   const fetchUserMoodsByDate = async (date: string) => {
     try {
       const moods: IMood[] = (await getUserMoodsByDate(1, date)) as IMood[];
-      setMoodsByDate(moods);
+      setMoodsByDate(moods.reverse());
     } catch (error) {
       console.log('Error', 'Failed to fetch user moods');
     }
@@ -30,17 +35,27 @@ const CalendarScreen = () => {
   const fetchUserMoods = useCallback(async () => {
     try {
       const moods: IMood[] = (await getUserMoods(1)) as IMood[];
-      setUserMoods(moods);
+      setUserMoods(moods.reverse());
     } catch (error) {
       console.log('Error', 'Failed to fetch user moods');
     }
   }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchUserMoods();
+    setRefreshing(false);
+  }, [fetchUserMoods]);
 
   useFocusEffect(
     useCallback(() => {
       fetchUserMoods();
     }, [fetchUserMoods]),
   );
+
+  useEffect(() => {
+    fetchUserMoodsByDate(titleCurrentDate);
+  }, [titleCurrentDate]);
 
   const [year, month, day] = titleCurrentDate.split('-');
 
@@ -50,40 +65,68 @@ const CalendarScreen = () => {
   );
 
   let markedDates: {
-    [key: string]: {};
+    [key: string]: {
+      customStyles?: {container: any; text: any};
+      marked?: boolean;
+      selected?: boolean;
+      dotColor?: string;
+    };
   } = {
-    [currentDate]: {
-      customStyles: {
-        container: styles.selectedDayContainer,
-        text: styles.selectedDayText,
-      },
-    },
     ...userMoods.reduce((dates, mood) => {
       const date = mood.date.split(',')[0];
       dates[date] = {
-        customStyles: {
-          container:
-            date === currentDate
-              ? styles.selectedDayContainer
-              : styles.markedDateContainer,
-          text:
-            date === currentDate
-              ? styles.selectedDayText
-              : styles.markedDateText,
-        },
+        marked: true,
+        selected: date === currentDate,
+        dotColor: '#6a67f4',
       };
       return dates;
-    }, {} as {[key: string]: {customStyles?: {container: any; text: any}}}),
+    }, {} as {[key: string]: {customStyles?: {container: any; text: any}; marked?: boolean; selected?: boolean; dotColor?: string}}),
   };
 
+  // let markedDates: {
+  //   [key: string]: {};
+  // } = {
+  //   [currentDate]: {
+  //     customStyles: {
+  //       container: styles.selectedDayContainer,
+  //       text: styles.selectedDayText,
+  //     },
+  //   },
+  //   ...userMoods.reduce((dates, mood) => {
+  //     const date = mood.date.split(',')[0];
+  //     dates[date] = {
+  //       customStyles: {
+  //         container:
+  //           date === currentDate
+  //             ? styles.selectedDayContainer
+  //             : styles.markedDateContainer,
+  //         text:
+  //           date === currentDate
+  //             ? styles.selectedDayText
+  //             : styles.markedDateText,
+  //       },
+  //     };
+  //     return dates;
+  //   }, {} as {[key: string]: {customStyles?: {container: any; text: any}}}),
+  // };
+
   const handleDayPress = async (selectedDay: {dateString: string}) => {
-    console.log(selectedDay);
     setCurrentDate(selectedDay.dateString);
     await fetchUserMoodsByDate(selectedDay.dateString);
   };
 
+  const formattedTime = (time: string) => {
+    return moment(time, 'HH:mm').format('HH:mm');
+  };
+
+  const navigation = useNavigation();
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
       <View style={styles.pageTimeWrapper}>
         <Text style={styles.pageHeaderToday}>Today</Text>
         <Text style={styles.pageHeaderDay}>{day}</Text>
@@ -100,11 +143,27 @@ const CalendarScreen = () => {
         )}
         minDate="2024-01-01"
         firstDay={1}
-        markingType="custom"
         markedDates={markedDates}
         enableSwipeMonths={false}
+        initialDate={titleCurrentDate}
         onDayPress={handleDayPress}
+        theme={{
+          todayBackgroundColor: '#ffe599',
+          todayTextColor: '#404444',
+          selectedDayTextColor: '#404444',
+          selectedDayBackgroundColor: '#ded7f4',
+        }}
       />
+      <View style={styles.selectedMoodsHead}>
+        <Text style={styles.selectedMoodDay}>
+          <Ionicons name="calendar-number-outline" size={16} color="#a3accb" />{' '}
+          {moment(currentDate).format('DD/MM/YYYY')}{' '}
+        </Text>
+        <Text style={styles.selectedMoodDay}>
+          <Ionicons name="balloon-outline" size={16} color="#a3accb" />{' '}
+          {moodsByDate.length === 1 ? '1 mood' : `${moodsByDate.length} moods`}
+        </Text>
+      </View>
       {moodsByDate.length === 0 ? (
         <Card style={styles.cardEmpty} mode="contained">
           <Ionicons
@@ -120,11 +179,38 @@ const CalendarScreen = () => {
       ) : (
         <View style={styles.viewWrapper}>
           {moodsByDate.map((mood, index) => (
-            <Card key={index} style={styles.cardWrapper} mode="contained">
+            <Card
+              key={index}
+              style={styles.card}
+              mode="contained"
+              disabled={!mood.note}
+              accessibilityLabel="Mood Card"
+              accessibilityHint="Tap to view more details"
+              onPress={() => navigation.navigate('SingleScreen', {mood})}>
               <Card.Content>
-                <Text>{mood.date}</Text>
-                <Text>{mood.emoji}</Text>
-                <Text>{mood.note}</Text>
+                <View style={styles.cardDateView}>
+                  <Ionicons name="time-outline" size={16} color="#a3accb" />
+                  <Text style={styles.cardDate}>
+                    {formattedTime(mood.time)}
+                  </Text>
+                </View>
+                <View style={styles.cardContent}>
+                  <Text style={styles.cardEmoji}>
+                    {getEmojiByMood(mood.emoji)}
+                  </Text>
+                  <Text style={styles.cardNote}>
+                    {mood.note && mood.note.length > 20
+                      ? `${mood.note.substring(0, 20)}...`
+                      : mood.note || 'No note provided'}
+                  </Text>
+                  {mood.note !== '' && (
+                    <Ionicons
+                      name="chevron-forward-outline"
+                      size={24}
+                      color="#a3accb"
+                    />
+                  )}
+                </View>
               </Card.Content>
             </Card>
           ))}
@@ -163,12 +249,26 @@ const styles = StyleSheet.create({
     lineHeight: 40.5,
   },
   calender: {
-    marginBottom: 16,
+    marginBottom: 24,
     borderRadius: 18,
     backgroundColor: '#caeef7',
     paddingBottom: 16,
     paddingLeft: 8,
     paddingRight: 8,
+  },
+  selectedMoodsHead: {
+    display: 'flex',
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingLeft: 8,
+    paddingRight: 8,
+  },
+  selectedMoodDay: {
+    fontSize: 16,
+    color: '#a3accb',
   },
   cardEmpty: {
     width: '100%',
@@ -185,15 +285,52 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   cardEmptyText: {
+    color: '#717373',
     fontSize: 16,
-    color: '#404444',
   },
   viewWrapper: {
     marginBottom: 24,
   },
-  cardWrapper: {
+  card: {
+    width: '100%',
     marginBottom: 12,
-    backgroundColor: '#fcd9e3',
+    backgroundColor: '#caeef7',
+    borderRadius: 18,
+  },
+  cardDateView: {
+    display: 'flex',
+    flexDirection: 'row',
+    columnGap: 4,
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  cardDate: {
+    fontSize: 14,
+    color: '#a3accb',
+  },
+  cardContent: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderRadius: 18,
+    paddingLeft: 8,
+    paddingRight: 28,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  cardNote: {
+    width: '80%',
+    color: '#717373',
+    fontSize: 20,
+  },
+  cardEmoji: {
+    backgroundColor: 'white',
+    padding: 8,
+    fontSize: 28,
+    borderRadius: 50,
+    textAlign: 'right',
   },
   markedDateContainer: {
     borderStyle: 'dashed',

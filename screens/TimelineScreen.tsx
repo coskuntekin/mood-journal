@@ -3,19 +3,18 @@ import moment from 'moment';
 import {styled} from 'nativewind';
 import React, {useCallback, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
-import {Card} from 'react-native-paper';
+import {Card, Divider, MD3Colors, ProgressBar} from 'react-native-paper';
 import {getUserMoods} from '../lib/database';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import {getEmojiByMood} from '../lib/emoji';
 
-const StyledScrollView = styled(ScrollView);
 const StyledView = styled(View);
 const StyledText = styled(Text);
 
 interface IMood {
+  time: string;
   date: string;
   emoji: string;
-  note: boolean;
+  note: string;
 }
 
 const TimelineScreen = (): React.JSX.Element => {
@@ -36,10 +35,9 @@ const TimelineScreen = (): React.JSX.Element => {
     }, []),
   );
 
-  const navigation = useNavigation();
-
-  const groupedMoods: {[key: string]: IMood[]} = userMoods.reduce(
-    (groups, mood) => {
+  // Group moods by date
+  const groupedMoods: {[key: string]: {[key: string]: IMood[]}} =
+    userMoods.reduce((groups, mood) => {
       const date = mood.date.split(',')[0];
 
       const currentDate = moment(date).calendar(null, {
@@ -50,16 +48,58 @@ const TimelineScreen = (): React.JSX.Element => {
       });
 
       if (!groups[currentDate]) {
-        groups[currentDate] = [];
+        groups[currentDate] = {};
       }
-      groups[currentDate].push(mood);
-      return groups;
-    },
-    {} as {[key: string]: IMood[]},
-  );
 
+      const emoji = mood.emoji;
+
+      if (!groups[currentDate][emoji]) {
+        groups[currentDate][emoji] = [];
+      }
+
+      groups[currentDate][emoji].push(mood);
+
+      return groups;
+    }, {} as {[key: string]: {[key: string]: IMood[]}});
+
+  // Sort dates
   const sortedDates = Object.keys(groupedMoods).sort((a, b) =>
     moment(b, 'MMMM Do').diff(moment(a, 'MMMM Do')),
+  );
+
+  const totalItemsLength = sortedDates.reduce((total, date) => {
+    const moodsByDate = groupedMoods[date];
+    const emojis = Object.keys(moodsByDate);
+    const itemsLength = emojis.reduce((sum, emoji) => {
+      return sum + moodsByDate[emoji].length;
+    }, 0);
+    if (date === 'Today' || moment(date, 'MMMM Do').isSame(moment(), 'day')) {
+      return total + itemsLength;
+    }
+    return total;
+  }, 0);
+
+  // Calculate mood percentages
+  const moodPercentagesByDate = sortedDates.reduce(
+    (percentagesByDate, date) => {
+      const moodPercentages = Object.keys(groupedMoods[date]).reduce(
+        (percentages, emoji) => {
+          if (!percentages[emoji]) {
+            percentages[emoji] = 0;
+          }
+
+          percentages[emoji] += groupedMoods[date][emoji].length;
+
+          return percentages;
+        },
+        {} as {[key: string]: number},
+      );
+
+      percentagesByDate[date] = moodPercentages;
+
+      return percentagesByDate;
+    },
+    {} as {[key: string]: {[key: string]: number}},
   );
 
   return (
@@ -73,43 +113,53 @@ const TimelineScreen = (): React.JSX.Element => {
         </StyledText>
       </StyledView>
       <View style={styles.viewWrapper}>
-        {sortedDates.reverse().map(date => (
-          <View key={date} style={styles.cardGroup}>
-            <Text style={styles.cardTime}>{date}</Text>
-            <View
-              style={
-                date === 'Today'
-                  ? styles.cardWrapperToday
-                  : styles.cardWrapperOtherDay
-              }>
-              {groupedMoods[date].map((mood, index) => (
-                <Card
-                  key={index}
-                  style={styles.card}
-                  disabled={!mood.note}
-                  accessibilityLabel="Mood Card"
-                  accessibilityHint="Tap to view more details"
-                  elevation={2}
-                  onPress={() => navigation.navigate('SingleScreen', {mood})}>
-                  <Card.Content style={styles.cardContent}>
-                    {mood.note && (
-                      <Ionicons
-                        name="glasses-outline"
-                        color={'#717373'}
-                        size={24}
-                        style={styles.cardNote}
-                      />
-                    )}
-                    <Text style={styles.cardMoodText}>{mood.emoji}</Text>
-                    <Text style={styles.cardEmoji}>
-                      {getEmojiByMood(mood.emoji)}
-                    </Text>
-                  </Card.Content>
-                </Card>
-              ))}
+        {sortedDates.reverse().map(date => {
+          const totalItemsForDate =
+            date === 'Today' || moment(date, 'MMMM Do').isSame(moment(), 'day')
+              ? totalItemsLength
+              : Object.values(groupedMoods[date]).reduce(
+                  (total, moods) => total + moods.length,
+                  0,
+                );
+          return (
+            <View key={date} style={styles.cardGroup}>
+              <Text style={styles.cardTime}>{date}</Text>
+              <View
+                style={
+                  date === 'Today'
+                    ? styles.cardWrapperToday
+                    : styles.cardWrapperOtherDay
+                }>
+                {Object.keys(groupedMoods[date]).map(emoji => (
+                  <View key={emoji}>
+                    <Card
+                      style={styles.card}
+                      accessibilityLabel="Mood Card"
+                      accessibilityHint="Tap to view more details"
+                      mode="contained">
+                      <Card.Content style={styles.cardContent}>
+                        <View style={styles.cardEmojiText}>
+                          <Text style={styles.cardEmoji}>
+                            {getEmojiByMood(emoji)}
+                          </Text>
+                          <Text style={styles.cardMoodText}>{emoji}</Text>
+                        </View>
+                        <Text style={styles.cardPercent}>
+                          {(
+                            (groupedMoods[date][emoji].length /
+                              totalItemsForDate) *
+                            100
+                          ).toFixed(1)}
+                          %
+                        </Text>
+                      </Card.Content>
+                    </Card>
+                  </View>
+                ))}
+              </View>
             </View>
-          </View>
-        ))}
+          );
+        })}
       </View>
     </ScrollView>
   );
@@ -126,25 +176,43 @@ const styles = StyleSheet.create({
   cardGroup: {
     marginBottom: 16,
   },
-  cardNote: {
+  cardNoteIcon: {
     position: 'absolute',
     right: -10,
     top: -10,
     transform: [{rotate: '45deg'}],
   },
+  cardEmojiText: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  cardNote: {
+    color: '#a3accb',
+    fontSize: 14,
+  },
+  cardPercent: {
+    color: '#a3accb',
+  },
   cardWrapperToday: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 16,
     backgroundColor: '#ffe599',
     padding: 18,
     borderRadius: 24,
   },
   cardWrapperOtherDay: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 16,
     backgroundColor: '#ded7f4',
     padding: 18,
     borderRadius: 24,
   },
   card: {
     backgroundColor: '#f2f2f2',
-    marginBottom: 10,
     borderRadius: 24,
   },
   cardTime: {

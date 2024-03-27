@@ -49,6 +49,18 @@ const TimelineStack = () => {
         component={TimelineScreen}
         options={{headerShown: false}}
       />
+    </Stack.Navigator>
+  );
+};
+
+const CalendarStack = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="CalendarScreen"
+        component={CalendarScreen}
+        options={{headerShown: false}}
+      />
       <Stack.Screen
         name="SingleScreen"
         component={SingleScreen}
@@ -103,7 +115,7 @@ function TabNavigator() {
       />
       <Tab.Screen
         name="Calendar"
-        component={CalendarScreen}
+        component={CalendarStack}
         options={{
           tabBarLabel: 'Calendar',
           tabBarIcon: CalendarTabIcon,
