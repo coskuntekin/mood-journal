@@ -155,14 +155,20 @@ const CalendarScreen = () => {
         }}
       />
       <View style={styles.selectedMoodsHead}>
-        <Text style={styles.selectedMoodDay}>
-          <Ionicons name="calendar-number-outline" size={16} color="#a3accb" />{' '}
-          {moment(currentDate || titleCurrentDate).format('DD/MM/YYYY')}{' '}
-        </Text>
-        <Text style={styles.selectedMoodDay}>
-          <Ionicons name="balloon-outline" size={16} color="#a3accb" />{' '}
-          {moodsByDate.length === 1 ? '1 mood' : `${moodsByDate.length} moods`}
-        </Text>
+        <View style={styles.selectedMoodDay}>
+          <Ionicons name="calendar-number-outline" size={16} color="#a3accb" />
+          <Text style={styles.selectedMoodDayText}>
+            {moment(currentDate || titleCurrentDate).format('DD/MM/YYYY')}
+          </Text>
+        </View>
+        <View style={styles.selectedMoodDay}>
+          <Ionicons name="balloon-outline" size={16} color="#a3accb" />
+          <Text style={styles.selectedMoodDayText}>
+            {moodsByDate.length === 1
+              ? '1 mood'
+              : `${moodsByDate.length} moods`}
+          </Text>
+        </View>
       </View>
       {moodsByDate.length === 0 ? (
         <Card style={styles.cardEmpty} mode="contained">
@@ -267,6 +273,12 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   selectedMoodDay: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 4,
+  },
+  selectedMoodDayText: {
     fontSize: 16,
     color: '#a3accb',
   },
