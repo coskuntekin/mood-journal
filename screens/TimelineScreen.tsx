@@ -149,7 +149,7 @@ const TimelineScreen = (): React.JSX.Element => {
                             (groupedMoods[date][emoji].length /
                               totalItemsForDate) *
                             100
-                          ).toFixed(1)}
+                          ).toFixed(0)}
                           %
                         </Text>
                       </Card.Content>
