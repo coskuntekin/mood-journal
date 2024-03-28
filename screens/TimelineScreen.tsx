@@ -79,29 +79,6 @@ const TimelineScreen = (): React.JSX.Element => {
     return total;
   }, 0);
 
-  // Calculate mood percentages
-  const moodPercentagesByDate = sortedDates.reduce(
-    (percentagesByDate, date) => {
-      const moodPercentages = Object.keys(groupedMoods[date]).reduce(
-        (percentages, emoji) => {
-          if (!percentages[emoji]) {
-            percentages[emoji] = 0;
-          }
-
-          percentages[emoji] += groupedMoods[date][emoji].length;
-
-          return percentages;
-        },
-        {} as {[key: string]: number},
-      );
-
-      percentagesByDate[date] = moodPercentages;
-
-      return percentagesByDate;
-    },
-    {} as {[key: string]: {[key: string]: number}},
-  );
-
   return (
     <ScrollView style={styles.container}>
       <StyledView className="w-full mb-4">
