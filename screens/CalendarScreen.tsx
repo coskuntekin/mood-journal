@@ -194,28 +194,37 @@ const CalendarScreen = () => {
               accessibilityHint="Tap to view more details"
               onPress={() => navigation.navigate('SingleScreen', {mood})}>
               <Card.Content>
-                <View style={styles.cardDateView}>
-                  <Ionicons name="time-outline" size={16} color="#a3accb" />
-                  <Text style={styles.cardDate}>
-                    {formattedTime(mood.time)}
-                  </Text>
-                </View>
                 <View style={styles.cardContent}>
-                  <Text style={styles.cardEmoji}>
-                    {getEmojiByMood(mood.emoji)}
-                  </Text>
-                  <Text style={styles.cardNote}>
-                    {mood.note && mood.note.length > 20
-                      ? `${mood.note.substring(0, 20)}...`
-                      : mood.note || 'No note provided'}
-                  </Text>
-                  {mood.note !== '' && (
-                    <Ionicons
-                      name="chevron-forward-outline"
-                      size={24}
-                      color="#a3accb"
-                    />
-                  )}
+                  <View style={styles.cardGrid}>
+                    <Text style={styles.cardEmoji}>
+                      {getEmojiByMood(mood.emoji)}
+                    </Text>
+                    <View style={styles.cardInner}>
+                      <Text style={styles.cardTitle}>{mood.emoji}</Text>
+                      <Text style={styles.cardNote}>
+                        {mood.note && mood.note.length > 20
+                          ? `${mood.note.substring(0, 20)}...`
+                          : mood.note || 'No note provided'}
+                      </Text>
+                      <View style={styles.cardDateView}>
+                        <Ionicons
+                          name="time-outline"
+                          size={16}
+                          color="#a3accb"
+                        />
+                        <Text style={styles.cardDate}>
+                          {formattedTime(mood.time)}
+                        </Text>
+                      </View>
+                    </View>
+                    {mood.note !== '' && (
+                      <Ionicons
+                        name="chevron-forward-outline"
+                        size={24}
+                        color="#a3accb"
+                      />
+                    )}
+                  </View>
                 </View>
               </Card.Content>
             </Card>
@@ -282,6 +291,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#a3accb',
   },
+  viewWrapper: {
+    marginBottom: 24,
+  },
   cardEmpty: {
     width: '100%',
     paddingBottom: 24,
@@ -296,12 +308,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 8,
   },
+  cardTitle: {
+    fontSize: 24,
+    color: '#404444',
+    fontWeight: 'bold',
+    marginBottom: 2,
+    textTransform: 'capitalize',
+  },
   cardEmptyText: {
     color: '#717373',
     fontSize: 16,
-  },
-  viewWrapper: {
-    marginBottom: 24,
   },
   card: {
     width: '100%',
@@ -311,38 +327,35 @@ const styles = StyleSheet.create({
   },
   cardDateView: {
     display: 'flex',
+    width: '100%',
     flexDirection: 'row',
-    columnGap: 4,
     alignItems: 'center',
+    columnGap: 4,
     marginBottom: 4,
   },
   cardDate: {
     fontSize: 14,
     color: '#a3accb',
   },
+  cardInner: {
+    width: '70%',
+  },
   cardContent: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexDirection: 'row',
-    backgroundColor: 'white',
     borderRadius: 18,
-    paddingLeft: 8,
-    paddingRight: 28,
-    paddingTop: 8,
-    paddingBottom: 8,
   },
   cardNote: {
-    width: '80%',
     color: '#717373',
     fontSize: 20,
+    marginBottom: 4,
+  },
+  cardGrid: {
+    display: 'flex',
+    flexDirection: 'row',
+    columnGap: 14,
+    alignItems: 'center',
   },
   cardEmoji: {
-    backgroundColor: 'white',
-    padding: 8,
-    fontSize: 28,
-    borderRadius: 50,
-    textAlign: 'right',
+    fontSize: 38,
   },
   markedDateContainer: {
     borderStyle: 'dashed',
