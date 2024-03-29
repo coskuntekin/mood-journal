@@ -1,3 +1,4 @@
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {
   ScrollView,
@@ -8,12 +9,18 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const ProfileScreen = () => {
+const ProfileScreen: React.FC = () => {
+  const navigation = useNavigation();
+
+  const goToDataScreen = () => {
+    navigation.navigate('DataScreen');
+  };
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.pageTitle}>Settings</Text>
       <View style={styles.cardWrapper}>
-        <TouchableOpacity style={styles.btnList}>
+        <TouchableOpacity style={styles.btnList} onPress={goToDataScreen}>
           <View style={styles.btnView}>
             <Ionicons name="server" size={20} color="#404444" />
             <Text style={styles.btnText}>Data</Text>
