@@ -83,33 +83,6 @@ const CalendarScreen = () => {
     }, {} as {[key: string]: {customStyles?: {container: any; text: any}; marked?: boolean; selected?: boolean; dotColor?: string}}),
   };
 
-  // let markedDates: {
-  //   [key: string]: {};
-  // } = {
-  //   [currentDate]: {
-  //     customStyles: {
-  //       container: styles.selectedDayContainer,
-  //       text: styles.selectedDayText,
-  //     },
-  //   },
-  //   ...userMoods.reduce((dates, mood) => {
-  //     const date = mood.date.split(',')[0];
-  //     dates[date] = {
-  //       customStyles: {
-  //         container:
-  //           date === currentDate
-  //             ? styles.selectedDayContainer
-  //             : styles.markedDateContainer,
-  //         text:
-  //           date === currentDate
-  //             ? styles.selectedDayText
-  //             : styles.markedDateText,
-  //       },
-  //     };
-  //     return dates;
-  //   }, {} as {[key: string]: {customStyles?: {container: any; text: any}}}),
-  // };
-
   const handleDayPress = async (selectedDay: {dateString: string}) => {
     setCurrentDate(selectedDay.dateString);
     await fetchUserMoodsByDate(selectedDay.dateString);
@@ -161,14 +134,16 @@ const CalendarScreen = () => {
             {moment(currentDate || titleCurrentDate).format('DD/MM/YYYY')}
           </Text>
         </View>
-        <View style={styles.selectedMoodDay}>
-          <Ionicons name="balloon-outline" size={16} color="#a3accb" />
-          <Text style={styles.selectedMoodDayText}>
-            {moodsByDate.length === 1
-              ? '1 mood'
-              : `${moodsByDate.length} moods`}
-          </Text>
-        </View>
+        {moodsByDate.length > 0 && (
+          <View style={styles.selectedMoodDay}>
+            <Ionicons name="balloon-outline" size={16} color="#a3accb" />
+            <Text style={styles.selectedMoodDayText}>
+              {moodsByDate.length === 1
+                ? '1 mood'
+                : `${moodsByDate.length} moods`}
+            </Text>
+          </View>
+        )}
       </View>
       {moodsByDate.length === 0 ? (
         <Card style={styles.cardEmpty} mode="contained">
