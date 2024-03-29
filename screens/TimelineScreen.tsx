@@ -1,9 +1,9 @@
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import moment from 'moment';
 import {styled} from 'nativewind';
 import React, {useCallback, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
-import {Card, Divider, MD3Colors, ProgressBar} from 'react-native-paper';
+import {Card} from 'react-native-paper';
 import {getUserMoods} from '../lib/database';
 import {getEmojiByMood} from '../lib/emoji';
 
