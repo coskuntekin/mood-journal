@@ -1,24 +1,25 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {ScrollView, StyleSheet, Text} from 'react-native';
 
 const GraphicScreen = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Welcome to My App!</Text>
-    </View>
+    <ScrollView style={styles.container}>
+      <Text style={styles.pageTitle}>Graphics</Text>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#F5FCFF',
+    padding: 18,
   },
-  text: {
-    fontSize: 24,
+  pageTitle: {
+    fontSize: 32,
     fontWeight: 'bold',
+    color: '#404444',
+    marginBottom: 18,
   },
 });
 
