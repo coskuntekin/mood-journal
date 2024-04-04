@@ -12,6 +12,8 @@ import TimelineScreen from './screens/TimelineScreen';
 import WelcomeScreen from './screens/WelcomeScreen';
 import SingleScreen from './screens/SingleScreen';
 import DataScreen from './screens/DataScreen';
+import CalendarSettingsScreen from './screens/CalendarSettingsScreen';
+import PrivacyScreen from './screens/PrivacyScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -90,6 +92,34 @@ const ProfileStack = () => {
         component={DataScreen}
         options={{
           title: 'Data',
+          headerTitleAlign: 'left',
+          headerStyle: {
+            backgroundColor: '#F5FCFF',
+            elevation: 0,
+          },
+          headerTintColor: '#717373',
+          headerTitleStyle: {fontWeight: 'bold'},
+        }}
+      />
+      <Stack.Screen
+        name="CalendarSettingsScreen"
+        component={CalendarSettingsScreen}
+        options={{
+          title: 'Calendar Settings',
+          headerTitleAlign: 'left',
+          headerStyle: {
+            backgroundColor: '#F5FCFF',
+            elevation: 0,
+          },
+          headerTintColor: '#717373',
+          headerTitleStyle: {fontWeight: 'bold'},
+        }}
+      />
+      <Stack.Screen
+        name="PrivacyScreen"
+        component={PrivacyScreen}
+        options={{
+          title: 'Privacy Policy',
           headerTitleAlign: 'left',
           headerStyle: {
             backgroundColor: '#F5FCFF',
