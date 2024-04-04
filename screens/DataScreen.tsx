@@ -1,8 +1,17 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const DataScreen: React.FC = () => {
+  const saveDatabaseDataAsJSON = async () => {
+    console.log('Saving data');
+  };
+
+  const exportData = async () => {
+    console.log('Exporting data');
+    await saveDatabaseDataAsJSON();
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.cardWrapper}>
@@ -12,7 +21,9 @@ const DataScreen: React.FC = () => {
             <Text style={styles.btnText}>Import</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.btnList, styles.lastChild]}>
+        <TouchableOpacity
+          style={[styles.btnList, styles.lastChild]}
+          onPress={exportData}>
           <View style={styles.btnView}>
             <Ionicons name="cloud-download-outline" size={20} color="#404444" />
             <Text style={styles.btnText}>Export</Text>
