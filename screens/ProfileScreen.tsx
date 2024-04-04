@@ -16,6 +16,10 @@ const ProfileScreen: React.FC = () => {
     navigation.navigate('DataScreen');
   };
 
+  const goToCalendarSettingsScreen = () => {
+    navigation.navigate('CalendarSettingsScreen');
+  };
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.pageTitle}>Settings</Text>
@@ -24,6 +28,15 @@ const ProfileScreen: React.FC = () => {
           <View style={styles.btnView}>
             <Ionicons name="server" size={20} color="#404444" />
             <Text style={styles.btnText}>Data</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#404444" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.btnList}
+          onPress={goToCalendarSettingsScreen}>
+          <View style={styles.btnView}>
+            <Ionicons name="calendar-clear" size={20} color="#404444" />
+            <Text style={styles.btnText}>Calendar</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#404444" />
         </TouchableOpacity>
@@ -54,7 +67,9 @@ const ProfileScreen: React.FC = () => {
           </View>
           <Ionicons name="chevron-forward" size={18} color="#404444" />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.btnList, styles.lastChild]}>
+        <TouchableOpacity
+          style={[styles.btnList, styles.lastChild]}
+          onPress={() => navigation.navigate('PrivacyScreen')}>
           <View style={styles.btnView}>
             <Ionicons name="shield" size={20} color="#404444" />
             <Text style={styles.btnText}>Privacy</Text>
