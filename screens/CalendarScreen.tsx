@@ -5,7 +5,11 @@ import {RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Calendar} from 'react-native-calendars';
 import {Card} from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {getUserMoods, getUserMoodsByDate} from '../lib/database';
+import {
+  getUserMoods,
+  getUserMoodsByDate,
+  getUserProfile,
+} from '../lib/database';
 import {getEmojiByMood} from '../lib/emoji';
 
 interface IMood {
@@ -20,6 +24,7 @@ const CalendarScreen = () => {
   const [currentDate, setCurrentDate] = useState<string>('');
   const [moodsByDate, setMoodsByDate] = useState<IMood[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [calendarStartDay, setCalendarStartDay] = useState<string>('');
 
   const titleCurrentDate = new Date().toISOString().split('T')[0];
 
@@ -41,6 +46,17 @@ const CalendarScreen = () => {
     }
   }, []);
 
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      const userProfile = (await getUserProfile(1)) as {
+        calendarStartDay: string;
+      };
+      setCalendarStartDay(userProfile.calendarStartDay);
+    } catch (error) {
+      console.log('Error', 'Failed to fetch user profile');
+    }
+  }, []);
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchUserMoods();
@@ -50,7 +66,8 @@ const CalendarScreen = () => {
   useFocusEffect(
     useCallback(() => {
       fetchUserMoods();
-    }, [fetchUserMoods]),
+      fetchUserProfile();
+    }, [fetchUserMoods, fetchUserProfile]),
   );
 
   useEffect(() => {
@@ -115,7 +132,7 @@ const CalendarScreen = () => {
           />
         )}
         minDate="2024-01-01"
-        firstDay={1}
+        firstDay={calendarStartDay === '0' ? 0 : 1}
         markedDates={markedDates}
         enableSwipeMonths={false}
         initialDate={titleCurrentDate}
