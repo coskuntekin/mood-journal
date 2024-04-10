@@ -77,12 +77,13 @@ const styles = StyleSheet.create({
   },
   pageText: {
     fontSize: 20,
+    lineHeight: 30,
     fontWeight: 'bold',
     color: '#404444',
   },
   noteWrapper: {
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
   },
 });
 
