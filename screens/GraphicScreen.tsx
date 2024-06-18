@@ -1,5 +1,6 @@
 import React from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 import Svg, {Path} from 'react-native-svg';
 
 const GraphicScreen = () => {
@@ -28,6 +29,20 @@ const GraphicScreen = () => {
         <Text style={styles.userNote}>
           Note: This daily mood temperature is a representation of your mood
         </Text>
+      </View>
+      <View style={styles.tabHead}>
+        <Text style={styles.subTitle}>Mood Chart</Text>
+        <View style={styles.btnTabContainer}>
+          <TouchableOpacity style={styles.btnTab}>
+            <Text>Weekly</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btnTab}>
+            <Text>Monthly</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btnTab}>
+            <Text>Yearly</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -63,6 +78,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     marginTop: 12,
     color: '#404444',
+  },
+  tabHead: {
+    display: 'flex',
+    width: '100%',
+    marginTop: 24,
+  },
+  btnTabContainer: {
+    flexDirection: 'row',
+   //  justifyContent: 'space-between',
+    marginTop: 12,
+  },
+  btnTab: {
+    backgroundColor: '#4F46A3',
+    padding: 12,
+    marginVertical: 6,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
