@@ -1,14 +1,10 @@
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import moment from 'moment';
-import {styled} from 'nativewind';
 import React, {useCallback, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
-import {Card, Divider, MD3Colors, ProgressBar} from 'react-native-paper';
+import {Card} from 'react-native-paper';
 import {getUserMoods} from '../lib/database';
 import {getEmojiByMood} from '../lib/emoji';
-
-const StyledView = styled(View);
-const StyledText = styled(Text);
 
 interface IMood {
   time: string;
@@ -79,39 +75,12 @@ const TimelineScreen = (): React.JSX.Element => {
     return total;
   }, 0);
 
-  // Calculate mood percentages
-  const moodPercentagesByDate = sortedDates.reduce(
-    (percentagesByDate, date) => {
-      const moodPercentages = Object.keys(groupedMoods[date]).reduce(
-        (percentages, emoji) => {
-          if (!percentages[emoji]) {
-            percentages[emoji] = 0;
-          }
-
-          percentages[emoji] += groupedMoods[date][emoji].length;
-
-          return percentages;
-        },
-        {} as {[key: string]: number},
-      );
-
-      percentagesByDate[date] = moodPercentages;
-
-      return percentagesByDate;
-    },
-    {} as {[key: string]: {[key: string]: number}},
-  );
-
   return (
     <ScrollView style={styles.container}>
-      <StyledView className="w-full mb-4">
-        <StyledText className="text-2xl text-black font-bold">
-          Welcome back 🤙
-        </StyledText>
-        <StyledText className="text-lg text-slate-400">
-          A great day to be productive
-        </StyledText>
-      </StyledView>
+      <View style={styles.header}>
+        <Text style={styles.welcomeText}>Welcome back 🤙</Text>
+        <Text style={styles.subtitle}>A great day to be productive</Text>
+      </View>
       <View style={styles.viewWrapper}>
         {sortedDates.reverse().map(date => {
           const totalItemsForDate =
@@ -149,7 +118,7 @@ const TimelineScreen = (): React.JSX.Element => {
                             (groupedMoods[date][emoji].length /
                               totalItemsForDate) *
                             100
-                          ).toFixed(1)}
+                          ).toFixed(0)}
                           %
                         </Text>
                       </Card.Content>
@@ -167,8 +136,21 @@ const TimelineScreen = (): React.JSX.Element => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     height: '100%',
     padding: 16,
+  },
+  header: {
+    marginBottom: 16,
+  },
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#64748b',
   },
   viewWrapper: {
     marginBottom: 24,
