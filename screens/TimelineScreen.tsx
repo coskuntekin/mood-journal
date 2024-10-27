@@ -1,14 +1,10 @@
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import moment from 'moment';
-import {styled} from 'nativewind';
 import React, {useCallback, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
-import {Card, Divider, MD3Colors, ProgressBar} from 'react-native-paper';
+import {Card} from 'react-native-paper';
 import {getUserMoods} from '../lib/database';
 import {getEmojiByMood} from '../lib/emoji';
-
-const StyledView = styled(View);
-const StyledText = styled(Text);
 
 interface IMood {
   time: string;
@@ -81,14 +77,10 @@ const TimelineScreen = (): React.JSX.Element => {
 
   return (
     <ScrollView style={styles.container}>
-      <StyledView className="w-full mb-4">
-        <StyledText className="text-2xl text-black font-bold">
-          Welcome back 🤙
-        </StyledText>
-        <StyledText className="text-lg text-slate-400">
-          A great day to be productive
-        </StyledText>
-      </StyledView>
+      <View style={styles.header}>
+        <Text style={styles.welcomeText}>Welcome back 🤙</Text>
+        <Text style={styles.subtitle}>A great day to be productive</Text>
+      </View>
       <View style={styles.viewWrapper}>
         {sortedDates.reverse().map(date => {
           const totalItemsForDate =
@@ -144,8 +136,21 @@ const TimelineScreen = (): React.JSX.Element => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     height: '100%',
     padding: 16,
+  },
+  header: {
+    marginBottom: 16,
+  },
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#64748b',
   },
   viewWrapper: {
     marginBottom: 24,

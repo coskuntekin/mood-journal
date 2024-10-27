@@ -11,6 +11,9 @@ import ProfileScreen from './screens/ProfileScreen';
 import TimelineScreen from './screens/TimelineScreen';
 import WelcomeScreen from './screens/WelcomeScreen';
 import SingleScreen from './screens/SingleScreen';
+import DataScreen from './screens/DataScreen';
+import CalendarSettingsScreen from './screens/CalendarSettingsScreen';
+import PrivacyScreen from './screens/PrivacyScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -65,9 +68,63 @@ const CalendarStack = () => {
         name="SingleScreen"
         component={SingleScreen}
         options={{
-          headerTitleAlign: 'center',
           title: 'Journal Entry',
+          headerTitleAlign: 'center',
           headerStyle: {backgroundColor: '#D1D5DB'},
+          headerTintColor: '#717373',
+          headerTitleStyle: {fontWeight: 'bold'},
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const ProfileStack = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="ProfileScreen"
+        component={ProfileScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="DataScreen"
+        component={DataScreen}
+        options={{
+          title: 'Data',
+          headerTitleAlign: 'left',
+          headerStyle: {
+            backgroundColor: '#F5FCFF',
+            elevation: 0,
+          },
+          headerTintColor: '#717373',
+          headerTitleStyle: {fontWeight: 'bold'},
+        }}
+      />
+      <Stack.Screen
+        name="CalendarSettingsScreen"
+        component={CalendarSettingsScreen}
+        options={{
+          title: 'Calendar Settings',
+          headerTitleAlign: 'left',
+          headerStyle: {
+            backgroundColor: '#F5FCFF',
+            elevation: 0,
+          },
+          headerTintColor: '#717373',
+          headerTitleStyle: {fontWeight: 'bold'},
+        }}
+      />
+      <Stack.Screen
+        name="PrivacyScreen"
+        component={PrivacyScreen}
+        options={{
+          title: 'Privacy Policy',
+          headerTitleAlign: 'left',
+          headerStyle: {
+            backgroundColor: '#F5FCFF',
+            elevation: 0,
+          },
           headerTintColor: '#717373',
           headerTitleStyle: {fontWeight: 'bold'},
         }}
@@ -123,7 +180,7 @@ function TabNavigator() {
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileStack}
         options={{
           tabBarLabel: 'Settings',
           tabBarIcon: ProfileTabIcon,

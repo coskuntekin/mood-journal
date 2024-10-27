@@ -23,7 +23,7 @@ Note: This is a sample documentation comment and should be customized based on t
 ## Installation
 
 1. Clone the repository.
-2. Install the dependencies using `npm install`.
+2. Install the dependencies using `pnpm install`.
 
 ## Usage
 

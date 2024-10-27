@@ -5,7 +5,11 @@ import {RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Calendar} from 'react-native-calendars';
 import {Card} from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {getUserMoods, getUserMoodsByDate} from '../lib/database';
+import {
+  getUserMoods,
+  getUserMoodsByDate,
+  getUserProfile,
+} from '../lib/database';
 import {getEmojiByMood} from '../lib/emoji';
 
 interface IMood {
@@ -20,6 +24,7 @@ const CalendarScreen = () => {
   const [currentDate, setCurrentDate] = useState<string>('');
   const [moodsByDate, setMoodsByDate] = useState<IMood[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [calendarStartDay, setCalendarStartDay] = useState<string>('');
 
   const titleCurrentDate = new Date().toISOString().split('T')[0];
 
@@ -41,6 +46,17 @@ const CalendarScreen = () => {
     }
   }, []);
 
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      const userProfile = (await getUserProfile(1)) as {
+        calendarStartDay: string;
+      };
+      setCalendarStartDay(userProfile.calendarStartDay);
+    } catch (error) {
+      console.log('Error', 'Failed to fetch user profile');
+    }
+  }, []);
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchUserMoods();
@@ -50,7 +66,8 @@ const CalendarScreen = () => {
   useFocusEffect(
     useCallback(() => {
       fetchUserMoods();
-    }, [fetchUserMoods]),
+      fetchUserProfile();
+    }, [fetchUserMoods, fetchUserProfile]),
   );
 
   useEffect(() => {
@@ -82,33 +99,6 @@ const CalendarScreen = () => {
       return dates;
     }, {} as {[key: string]: {customStyles?: {container: any; text: any}; marked?: boolean; selected?: boolean; dotColor?: string}}),
   };
-
-  // let markedDates: {
-  //   [key: string]: {};
-  // } = {
-  //   [currentDate]: {
-  //     customStyles: {
-  //       container: styles.selectedDayContainer,
-  //       text: styles.selectedDayText,
-  //     },
-  //   },
-  //   ...userMoods.reduce((dates, mood) => {
-  //     const date = mood.date.split(',')[0];
-  //     dates[date] = {
-  //       customStyles: {
-  //         container:
-  //           date === currentDate
-  //             ? styles.selectedDayContainer
-  //             : styles.markedDateContainer,
-  //         text:
-  //           date === currentDate
-  //             ? styles.selectedDayText
-  //             : styles.markedDateText,
-  //       },
-  //     };
-  //     return dates;
-  //   }, {} as {[key: string]: {customStyles?: {container: any; text: any}}}),
-  // };
 
   const handleDayPress = async (selectedDay: {dateString: string}) => {
     setCurrentDate(selectedDay.dateString);
@@ -142,7 +132,7 @@ const CalendarScreen = () => {
           />
         )}
         minDate="2024-01-01"
-        firstDay={1}
+        firstDay={calendarStartDay === '0' ? 0 : 1}
         markedDates={markedDates}
         enableSwipeMonths={false}
         initialDate={titleCurrentDate}
@@ -161,6 +151,7 @@ const CalendarScreen = () => {
             {moment(currentDate || titleCurrentDate).format('DD/MM/YYYY')}
           </Text>
         </View>
+<<<<<<< HEAD
         <View style={styles.selectedMoodDay}>
           <Ionicons name="balloon-outline" size={16} color="#a3accb" />
           <Text style={styles.selectedMoodDayText}>
@@ -169,6 +160,18 @@ const CalendarScreen = () => {
               : `${moodsByDate.length} moods`}
           </Text>
         </View>
+=======
+        {moodsByDate.length > 0 && (
+          <View style={styles.selectedMoodDay}>
+            <Ionicons name="balloon-outline" size={16} color="#a3accb" />
+            <Text style={styles.selectedMoodDayText}>
+              {moodsByDate.length === 1
+                ? '1 mood'
+                : `${moodsByDate.length} moods`}
+            </Text>
+          </View>
+        )}
+>>>>>>> 469698dfc934373a685c07fd04a47a04a3d2e45d
       </View>
       {moodsByDate.length === 0 ? (
         <Card style={styles.cardEmpty} mode="contained">
@@ -194,28 +197,37 @@ const CalendarScreen = () => {
               accessibilityHint="Tap to view more details"
               onPress={() => navigation.navigate('SingleScreen', {mood})}>
               <Card.Content>
-                <View style={styles.cardDateView}>
-                  <Ionicons name="time-outline" size={16} color="#a3accb" />
-                  <Text style={styles.cardDate}>
-                    {formattedTime(mood.time)}
-                  </Text>
-                </View>
                 <View style={styles.cardContent}>
-                  <Text style={styles.cardEmoji}>
-                    {getEmojiByMood(mood.emoji)}
-                  </Text>
-                  <Text style={styles.cardNote}>
-                    {mood.note && mood.note.length > 20
-                      ? `${mood.note.substring(0, 20)}...`
-                      : mood.note || 'No note provided'}
-                  </Text>
-                  {mood.note !== '' && (
-                    <Ionicons
-                      name="chevron-forward-outline"
-                      size={24}
-                      color="#a3accb"
-                    />
-                  )}
+                  <View style={styles.cardGrid}>
+                    <Text style={styles.cardEmoji}>
+                      {getEmojiByMood(mood.emoji)}
+                    </Text>
+                    <View style={styles.cardInner}>
+                      <Text style={styles.cardTitle}>{mood.emoji}</Text>
+                      <Text style={styles.cardNote}>
+                        {mood.note && mood.note.length > 20
+                          ? `${mood.note.substring(0, 20)}...`
+                          : mood.note || 'No note provided'}
+                      </Text>
+                      <View style={styles.cardDateView}>
+                        <Ionicons
+                          name="time-outline"
+                          size={16}
+                          color="#a3accb"
+                        />
+                        <Text style={styles.cardDate}>
+                          {formattedTime(mood.time)}
+                        </Text>
+                      </View>
+                    </View>
+                    {mood.note !== '' && (
+                      <Ionicons
+                        name="chevron-forward-outline"
+                        size={24}
+                        color="#a3accb"
+                      />
+                    )}
+                  </View>
                 </View>
               </Card.Content>
             </Card>
@@ -282,6 +294,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#a3accb',
   },
+  viewWrapper: {
+    marginBottom: 24,
+  },
   cardEmpty: {
     width: '100%',
     paddingBottom: 24,
@@ -296,12 +311,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 8,
   },
+  cardTitle: {
+    fontSize: 24,
+    color: '#404444',
+    fontWeight: 'bold',
+    marginBottom: 2,
+    textTransform: 'capitalize',
+  },
   cardEmptyText: {
     color: '#717373',
     fontSize: 16,
-  },
-  viewWrapper: {
-    marginBottom: 24,
   },
   card: {
     width: '100%',
@@ -311,38 +330,35 @@ const styles = StyleSheet.create({
   },
   cardDateView: {
     display: 'flex',
+    width: '100%',
     flexDirection: 'row',
-    columnGap: 4,
     alignItems: 'center',
+    columnGap: 4,
     marginBottom: 4,
   },
   cardDate: {
     fontSize: 14,
     color: '#a3accb',
   },
+  cardInner: {
+    width: '70%',
+  },
   cardContent: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexDirection: 'row',
-    backgroundColor: 'white',
     borderRadius: 18,
-    paddingLeft: 8,
-    paddingRight: 28,
-    paddingTop: 8,
-    paddingBottom: 8,
   },
   cardNote: {
-    width: '80%',
     color: '#717373',
     fontSize: 20,
+    marginBottom: 4,
+  },
+  cardGrid: {
+    display: 'flex',
+    flexDirection: 'row',
+    columnGap: 14,
+    alignItems: 'center',
   },
   cardEmoji: {
-    backgroundColor: 'white',
-    padding: 8,
-    fontSize: 28,
-    borderRadius: 50,
-    textAlign: 'right',
+    fontSize: 38,
   },
   markedDateContainer: {
     borderStyle: 'dashed',
